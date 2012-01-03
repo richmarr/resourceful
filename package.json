@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "cradle": "0.5.x",
+    "elastical":"0.0.3",
     "revalidator": "*" 
   },
   "devDependencies": {
