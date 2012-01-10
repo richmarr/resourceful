@@ -7,6 +7,8 @@ var assert = require('assert'),
 resourceful.env = 'test';
 resourceful.use('elasticsearch',{index:'resourceful-test'});
 
+var Article; // Set this in module scope so we can refer to it a few times
+
 vows.describe('resourceful/elasticsearch/search').addBatch({
   "An index containing articles and other resources": {
     topic: function () {
@@ -31,23 +33,32 @@ vows.describe('resourceful/elasticsearch/search').addBatch({
     "is created": function () {}
   }
 }).addBatch({
-  "The index should be searchable with a simple query term": {
+  "Searching the index": {
     topic: function () {
       var that = this;
-      var Article = resourceful.define('Article', function () {
+      Article = resourceful.define('Article', function () {
         this.property('author');
         this.property('title');
         this.property('tags');
         this.property('published', Boolean);
       });
       setTimeout(function(){
-        Article.search("vim",function( err, resources ){
-          that.callback(err,resources);
-        });
+        that.callback();
       },1000); // HACK - there's a delay before these documents are available for search so I'm delaying this
     },
-    "should return an article":function( err, resources ){
-      assert.equal( resources.length, 1 );
+    "for a simple search term":{
+      topic:function(){
+        Article.search("vim",this.callback);
+      },
+      "should return results":function( err, resources ){
+        assert.equal( resources.length, 1 );
+      },
+      "results should be valid Article objects":function( err, resources ){
+        assert.equal( resources[0].resource, "Article" );
+      },
+      "results should be the one expected":function( err, resources ){
+        assert.equal( resources[0].title, "Finding vim" );
+      }
     }
   }
 }).export(module);
